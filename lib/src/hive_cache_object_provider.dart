@@ -7,14 +7,14 @@ import 'package:pedantic/pedantic.dart';
 import 'hive_cache_object.dart';
 
 class HiveCacheObjectProvider implements CacheInfoRepository {
-  Future<Box> box;
-  Box _box;
+  Future<Box>? box;
+  late Box _box;
 
   HiveCacheObjectProvider(this.box);
 
   @override
   Future<bool> open() async {
-    _box = await box;
+    _box = await box!;
     return true;
   }
 
@@ -35,7 +35,7 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
           relativePath: cacheObject.relativePath,
           validTillMs: cacheObject.validTill.millisecondsSinceEpoch,
           touchedMs: clock.now().millisecondsSinceEpoch,
-          eTag: cacheObject.eTag);
+          eTag: cacheObject.eTag!);
     }
     unawaited(_box.put(hiveCacheObject.key, hiveCacheObject));
     return cacheObject;
@@ -78,11 +78,11 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
     /// all objects sorted descending by touched where touched is older than day ago
     final allObjects = (await getAllObjects())
         .where((cacheObject) =>
-            (cacheObject as HiveCacheObject).touchedMs < dayAgo)
+            (cacheObject as HiveCacheObject).touchedMs! < dayAgo)
         .toList()
           ..sort((a, b) =>
-              (b as HiveCacheObject).touchedMs -
-              (a as HiveCacheObject).touchedMs);
+              (b as HiveCacheObject).touchedMs! -
+              (a as HiveCacheObject).touchedMs!);
 
     if (capacity > allObjects.length) {
       return <CacheObject>[];
@@ -97,7 +97,7 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
 
     final allOldObjects = (await getAllObjects())
         .where(
-            (cacheObject) => (cacheObject as HiveCacheObject).touchedMs < then)
+            (cacheObject) => (cacheObject as HiveCacheObject).touchedMs! < then)
         .toList();
 
     return allOldObjects;

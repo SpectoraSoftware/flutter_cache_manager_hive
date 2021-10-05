@@ -2,6 +2,8 @@
 /// Copyright (c) 2019 Rene Floor
 /// Released under MIT License.
 
+import 'package:example/download_page.dart';
+import 'package:example/fab.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
@@ -33,31 +35,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Stream<FileResponse> fileStream;
+  Stream<FileResponse>? fileStream;
 
-  void _downloadFile() {
+  Future<void> createFileStream() async {
+    var result = HiveCacheManager(box: Hive.openBox(CACHE_BOX_NAME))
+        .getFileStream(url, withProgress: true);
     setState(() {
-      fileStream = HiveCacheManager(box: Hive.openBox(CACHE_BOX_NAME))
-          .getFileStream(url, withProgress: true);
+      fileStream = result;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (fileStream == null) {
-      return Scaffold(
-        appBar: _appBar(),
-        body: const ListTile(
-            title: Text('Tap the floating action button to download.')),
-        floatingActionButton: Fab(
-          downloadFile: _downloadFile,
+  void _downloadFile() {
+    createFileStream().then(
+      (_) => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DownloadPage(
+            fileStream: fileStream,
+            downloadFile: _downloadFile,
+            clearCache: _clearCache,
+          ),
         ),
-      );
-    }
-    return DownloadPage(
-      fileStream: fileStream,
-      downloadFile: _downloadFile,
-      clearCache: _clearCache,
+      ),
     );
   }
 
@@ -67,133 +66,22 @@ class _MyHomePageState extends State<MyHomePage> {
       fileStream = null;
     });
   }
-}
-
-class DownloadPage extends StatelessWidget {
-  final Stream<FileResponse> fileStream;
-  final VoidCallback downloadFile;
-  final VoidCallback clearCache;
-  const DownloadPage(
-      {Key key, this.fileStream, this.downloadFile, this.clearCache})
-      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<FileResponse>(
-      stream: fileStream,
-      builder: (context, snapshot) {
-        Widget body;
-
-        var loading = !snapshot.hasData || snapshot.data is DownloadProgress;
-
-        if (snapshot.hasError) {
-          body = ListTile(
-            title: const Text('Error'),
-            subtitle: Text(snapshot.error.toString()),
-          );
-        } else if (loading) {
-          body = ProgressIndicator(progress: snapshot.data as DownloadProgress);
-        } else {
-          body = FileInfoWidget(
-            fileInfo: snapshot.data as FileInfo,
-            clearCache: clearCache,
-          );
-        }
-
-        return Scaffold(
-          appBar: _appBar(),
-          body: body,
-          floatingActionButton: !loading
-              ? Fab(
-                  downloadFile: downloadFile,
-                )
-              : null,
-        );
-      },
-    );
-  }
-}
-
-AppBar _appBar() {
-  return AppBar(
-    title: const Text('Flutter Cache Manager Demo'),
-  );
-}
-
-class Fab extends StatelessWidget {
-  final VoidCallback downloadFile;
-  const Fab({Key key, this.downloadFile}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: downloadFile,
-      tooltip: 'Download',
-      child: const Icon(Icons.cloud_download),
-    );
-  }
-}
-
-class ProgressIndicator extends StatelessWidget {
-  final DownloadProgress progress;
-  const ProgressIndicator({Key key, this.progress}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Container(
-            width: 50.0,
-            height: 50.0,
-            child: CircularProgressIndicator(
-              value: progress?.progress,
-            ),
-          ),
-          const SizedBox(width: 20.0),
-          const Text('Downloading'),
-        ],
+    return Scaffold(
+      appBar: _appBar(),
+      body: const ListTile(
+          title: Text('Tap the floating action button to download.')),
+      floatingActionButton: Fab(
+        downloadFile: _downloadFile,
       ),
     );
   }
-}
 
-class FileInfoWidget extends StatelessWidget {
-  final FileInfo fileInfo;
-  final VoidCallback clearCache;
-
-  const FileInfoWidget({Key key, this.fileInfo, this.clearCache})
-      : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        ListTile(
-          title: const Text('Original URL'),
-          subtitle: Text(fileInfo.originalUrl),
-        ),
-        if (fileInfo.file != null)
-          ListTile(
-            title: const Text('Local file path'),
-            subtitle: Text(fileInfo.file.path),
-          ),
-        ListTile(
-          title: const Text('Loaded from'),
-          subtitle: Text(fileInfo.source.toString()),
-        ),
-        ListTile(
-          title: const Text('Valid Until'),
-          subtitle: Text(fileInfo.validTill.toIso8601String()),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: RaisedButton(
-            child: const Text('CLEAR CACHE'),
-            onPressed: clearCache,
-          ),
-        ),
-      ],
+  AppBar _appBar() {
+    return AppBar(
+      title: const Text('Flutter Cache Manager Demo'),
     );
   }
 }

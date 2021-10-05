@@ -8,10 +8,10 @@ import 'hive_cache_object_provider.dart';
 class HiveCacheManager extends CacheManager {
   static const key = 'libCachedImageDataHive';
 
-  static HiveCacheManager _instance;
+  static HiveCacheManager? _instance;
 
   factory HiveCacheManager({
-    @required Future<Box> box,
+    required Future<Box> box,
     int maxSize = 200,
     Duration maxAge = const Duration(days: 30),
   }) {
@@ -23,7 +23,7 @@ class HiveCacheManager extends CacheManager {
         repo: HiveCacheObjectProvider(box),
       ),
     );
-    return _instance;
+    return _instance!;
   }
 
   HiveCacheManager._(Config config) : super(config);
