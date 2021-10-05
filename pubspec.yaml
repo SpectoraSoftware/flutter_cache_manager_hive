@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   clock: ^1.0.1
-  file: ^5.1.0
+  file: ^6.1.0
   flutter:
     sdk: flutter
   flutter_cache_manager: ^2.1.0
