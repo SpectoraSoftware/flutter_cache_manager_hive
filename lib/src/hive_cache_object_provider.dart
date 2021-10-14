@@ -35,7 +35,7 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
           relativePath: cacheObject.relativePath,
           validTillMs: cacheObject.validTill.millisecondsSinceEpoch,
           touchedMs: clock.now().millisecondsSinceEpoch,
-          eTag: cacheObject.eTag!);
+          eTag: cacheObject.eTag);
     }
     unawaited(_box.put(hiveCacheObject.key, hiveCacheObject));
     return cacheObject;
