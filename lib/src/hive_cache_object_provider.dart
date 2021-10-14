@@ -42,8 +42,8 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
   }
 
   @override
-  Future<CacheObject> get(String url) async {
-    return _box.get(_hiveKey(url)) as CacheObject;
+  Future<CacheObject?> get(String url) async {
+    return _box.get(_hiveKey(url)) as CacheObject?;
   }
 
   @override
@@ -80,9 +80,9 @@ class HiveCacheObjectProvider implements CacheInfoRepository {
         .where((cacheObject) =>
             (cacheObject as HiveCacheObject).touchedMs! < dayAgo)
         .toList()
-          ..sort((a, b) =>
-              (b as HiveCacheObject).touchedMs! -
-              (a as HiveCacheObject).touchedMs!);
+      ..sort((a, b) =>
+          (b as HiveCacheObject).touchedMs! -
+          (a as HiveCacheObject).touchedMs!);
 
     if (capacity > allObjects.length) {
       return <CacheObject>[];

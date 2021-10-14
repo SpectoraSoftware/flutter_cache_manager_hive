@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:hive/hive.dart';
-import 'package:meta/meta.dart';
 
 import 'hive_cache_object_provider.dart';
 
