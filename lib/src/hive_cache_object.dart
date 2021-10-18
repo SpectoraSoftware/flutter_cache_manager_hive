@@ -1,5 +1,5 @@
-import 'package:flutter_cache_manager/src/storage/cache_object.dart';
 import 'package:clock/clock.dart';
+import 'package:flutter_cache_manager/src/storage/cache_object.dart';
 
 class HiveCacheObject extends CacheObject {
   /// Remove this once new version is released
@@ -10,7 +10,6 @@ class HiveCacheObject extends CacheObject {
 
   /// Last time this entry was added/updated
   final int? touchedMs;
-
 
   HiveCacheObject(
     String url, {
@@ -29,14 +28,12 @@ class HiveCacheObject extends CacheObject {
   factory HiveCacheObject.fromHiveMap(Map<dynamic, dynamic> map) =>
       HiveCacheObject(
         map['url'] as String,
-        key: map['key'] as String,
-        relativePath: map['relativePath'] as String,
+        key: map['key'] as String?,
+        relativePath: map['relativePath'] as String?,
         validTillMs: map['validTillMs'] as int? ?? 0,
         touchedMs: map['touchedMs'] as int? ?? 0,
-        eTag: map['eTag'] as String,
+        eTag: map['eTag'] as String?,
       );
-
-  
 
   Map<dynamic, dynamic> toHiveMap() => {
         'url': url,
