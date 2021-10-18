@@ -28,12 +28,20 @@ class DownloadPage extends StatelessWidget {
             title: const Text('Error'),
             subtitle: Text(snapshot.error.toString()),
           );
-        } else if (loading) {
-          body = ProgressIndicator(progress: snapshot.data as DownloadProgress);
+        } else if (snapshot.hasData) {
+          if (loading) {
+            body =
+                ProgressIndicator(progress: snapshot.data as DownloadProgress);
+          } else {
+            body = FileInfoWidget(
+              fileInfo: snapshot.data as FileInfo,
+              clearCache: clearCache!,
+            );
+          }
         } else {
-          body = FileInfoWidget(
-            fileInfo: snapshot.data as FileInfo,
-            clearCache: clearCache!,
+          body = const ListTile(
+            title: Text('Error'),
+            subtitle: Text('Missing snapshot data'),
           );
         }
 
@@ -53,8 +61,6 @@ class DownloadPage extends StatelessWidget {
     );
   }
 }
-
-
 
 class ProgressIndicator extends StatelessWidget {
   final DownloadProgress? progress;
@@ -110,7 +116,7 @@ class FileInfoWidget extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),
-          child: RaisedButton(
+          child: TextButton(
             child: const Text('CLEAR CACHE'),
             onPressed: clearCache,
           ),
